@@ -18,7 +18,7 @@ load_dotenv()
 # DATABASE_URL = f"postgresql+psycopg2://{USERNAME}:{PASSWORD}@{HOST_NAME}:{PORT}/{DATABASE}"
 
 # Vercel DataBase 
-DATABASE_URL = os.getenv("VERCEL_DATABASE")
+DATABASE_URL = os.getenv("DATABASE_URL_V")
 # Create engine
 engine = create_engine(DATABASE_URL, echo=True)
 
