@@ -8,15 +8,17 @@ from sqlalchemy.ext.declarative import declarative_base
 load_dotenv()
 
 # Read from .env
-HOST_NAME = os.getenv("HOST_NAME")
-PORT = os.getenv("PORT")
-USERNAME = os.getenv("USERNAME")
-PASSWORD = os.getenv("PASSWORD")
-DATABASE = os.getenv("DATABASE")
+# HOST_NAME = os.getenv("HOST_NAME")
+# PORT = os.getenv("PORT")
+# USERNAME = os.getenv("USERNAME")
+# PASSWORD = os.getenv("PASSWORD")
+# DATABASE = os.getenv("DATABASE")
 
 # PostgreSQL connection URL
-DATABASE_URL = f"postgresql+psycopg2://{USERNAME}:{PASSWORD}@{HOST_NAME}:{PORT}/{DATABASE}"
+# DATABASE_URL = f"postgresql+psycopg2://{USERNAME}:{PASSWORD}@{HOST_NAME}:{PORT}/{DATABASE}"
 
+# Vercel DataBase 
+DATABASE_URL = os.getenv("VERCEL_DATABASE")
 # Create engine
 engine = create_engine(DATABASE_URL, echo=True)
 
