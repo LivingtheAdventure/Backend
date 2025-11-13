@@ -9,6 +9,7 @@ from event.service.service import (
     get_event_by_id,
     get_event_by_uuid,
     create_event,
+    get_events_by_type,
     update_event,
     delete_event
 )
@@ -54,3 +55,10 @@ def remove_event(event_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
     delete_event(db, db_event)
     return  
+
+@router.get("/by-type/{event_type}", response_model=List[EventOut])
+def read_events_by_type(event_type: str, db: Session = Depends(get_db)):
+    events = get_events_by_type(db, event_type)
+    if not events:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No events found for this type")
+    return events

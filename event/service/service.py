@@ -57,3 +57,6 @@ def delete_event(db: Session, db_obj: Event):
     db.delete(db_obj)
     db.commit()
     return
+
+def get_events_by_type(db: Session, event_type: str):
+    return db.query(Event).filter(Event.event_type == event_type).all()
