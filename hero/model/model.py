@@ -15,7 +15,7 @@ class Hero(Base):
     video_url = Column(String, nullable=True) # CHANGED: Varchar is String in SQLAlchemy
     thumbnail_image_url = Column(String, nullable=True) # CHANGED: Varchar is String in SQLAlchemy
     description = Column(String, nullable=True) # CHANGED: Varchar is String in SQLAlchemy
-
+    hero_type = Column(String, nullable=True) # Home / Trip / Track 
     # CRITICAL FIX: Changed from JSONB to ARRAY(String) to match the database
     details = Column(ARRAY(String), nullable=True)
 

@@ -12,7 +12,7 @@ class HeroBase(BaseModel):
     details: Optional[List[str]] = None
     genres: Optional[List[str]] = None
     status: Optional[str] = None
-    # FIX: Allow 'active' to be either a boolean or a string
+    hero_type: Optional[str] = None  # ✅ Added
     active: Optional[Union[str, bool]] = None
 
 class HeroCreate(HeroBase):
@@ -28,7 +28,7 @@ class HeroUpdate(BaseModel):
     details: Optional[List[str]] = None
     genres: Optional[List[str]] = None
     status: Optional[str] = None
-    # FIX: Allow 'active' to be either a boolean or a string
+    hero_type: Optional[str] = None  # ✅ Added
     active: Optional[Union[str, bool]] = None
 
 class HeroOut(HeroBase):

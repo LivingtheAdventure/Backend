@@ -73,4 +73,5 @@ def delete_hero(db: Session, db_obj: Hero):
     db.commit()
     return
 
-     
+def get_heroes_by_type(db: Session, hero_type: str) -> List[Hero]:
+    return db.query(Hero).filter(Hero.hero_type == hero_type).all()

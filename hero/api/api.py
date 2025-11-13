@@ -1,11 +1,14 @@
-# app/routers/hero_router.py
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
 
 from database.database import get_db
-from hero.service.service import get_heroes, get_hero_by_id, get_hero_by_uuid, create_hero, update_hero, delete_hero
+from hero.service.service import (
+    get_heroes, get_hero_by_id, get_hero_by_uuid,
+    create_hero, update_hero, delete_hero, get_heroes_by_type
+)
 from hero.schema.schema import HeroOut, HeroCreate, HeroUpdate
 
 router = APIRouter(prefix="/heroes", tags=["heroes"])
@@ -27,6 +30,14 @@ def read_hero_by_uuid(hero_uuid: UUID, db: Session = Depends(get_db)):
     if not db_hero:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hero not found")
     return db_hero
+
+# ✅ NEW ENDPOINT
+@router.get("/by-type/{hero_type}", response_model=List[HeroOut])
+def read_heroes_by_type(hero_type: str, db: Session = Depends(get_db)):
+    heroes = get_heroes_by_type(db, hero_type)
+    if not heroes:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No heroes found for type '{hero_type}'")
+    return heroes
 
 @router.post("/", response_model=HeroOut, status_code=status.HTTP_200_OK)
 def create_new_hero(payload: HeroCreate, db: Session = Depends(get_db)):
