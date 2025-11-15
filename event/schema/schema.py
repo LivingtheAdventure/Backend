@@ -41,11 +41,18 @@ class EventBase(BaseModel):
     seo_title: Optional[str] = None
     seo_description: Optional[str] = None
 
+    # ✅ Add these 3 fields
     status: Optional[str] = None
+    state: Optional[str] = None
+    label: Optional[str] = None
+
+
 
 
 class EventCreate(EventBase):
     event_id: Optional[UUID] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 
 class EventUpdate(BaseModel):
@@ -79,6 +86,8 @@ class EventUpdate(BaseModel):
     seo_title: Optional[str] = None
     seo_description: Optional[str] = None
     status: Optional[str] = None
+    state: Optional[str] = None
+    label: Optional[str] = None
 
 
 class EventOut(EventBase):
@@ -86,6 +95,9 @@ class EventOut(EventBase):
     event_id: Optional[UUID] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    status: Optional[str] = None
+    state: Optional[str] = None
+    label: Optional[str] = None
 
     class Config:
         orm_mode = True

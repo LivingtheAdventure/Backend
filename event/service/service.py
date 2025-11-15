@@ -4,13 +4,13 @@ from event.model.model import Event
 from event.schema.schema import EventCreate, EventUpdate
 
 def get_events(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Event).offset(skip).limit(limit).all()
+    return db.query(Event).filter(Event.status == "published").offset(skip).limit(limit).all()
 
 def get_event_by_id(db: Session, event_id: int):
-    return db.query(Event).filter(Event.id == event_id).first()
+    return db.query(Event).filter(Event.id == event_id,).first()
 
 def get_event_by_uuid(db: Session, event_uuid):
-    return db.query(Event).filter(Event.event_id == event_uuid).first()
+    return db.query(Event).filter(Event.event_id == event_uuid,Event.status == "published").first()
 
 def create_event(db: Session, event_in: EventCreate):
     event_data = event_in.dict(exclude_unset=True)
@@ -59,4 +59,4 @@ def delete_event(db: Session, db_obj: Event):
     return
 
 def get_events_by_type(db: Session, event_type: str):
-    return db.query(Event).filter(Event.event_type == event_type).all()
+    return db.query(Event).filter(Event.event_type == event_type, Event.status == "published").all()

@@ -49,6 +49,8 @@ class Event(Base):
     seo_description = Column(Text, nullable=True)
 
     status = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    label = Column(String, nullable=True)
 
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), onupdate=func.now())
