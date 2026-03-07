@@ -20,7 +20,11 @@ load_dotenv()
 # Vercel DataBase 
 DATABASE_URL = os.getenv("DATABASE_URL_V")
 # Create engine
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_recycle=300
+)
 
 # SessionLocal for DB interaction
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

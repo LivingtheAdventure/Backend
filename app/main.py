@@ -5,7 +5,9 @@ from hero.api.api import router as hero_router
 from event.api.api import router as event_router
 from schedule.api.api import router as event_schedule_router
 from special.api.api import router as special_router
+from favourite.api.api import router as favourite_router
 from database.database import Base, engine
+from favourite.model.model import Favourite  # noqa: F401
 
 Base.metadata.create_all(bind=engine)
 
@@ -14,12 +16,11 @@ app = FastAPI()
 # ✅ Add CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-   allow_origins=[
+    allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://frontend-three-mu-66.vercel.app", # <-- Your new frontend URL
-        "https://frontend-2-0-ebon.vercel.app"
-
+        "https://frontend-three-mu-66.vercel.app",  # <-- Your new frontend URL
+        "https://frontend-2-0-ebon.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
@@ -32,6 +33,8 @@ app.include_router(hero_router)
 app.include_router(event_router)
 app.include_router(event_schedule_router)
 app.include_router(special_router)
+app.include_router(favourite_router)
+
 
 @app.get("/")
 def root():

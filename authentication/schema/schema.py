@@ -1,16 +1,26 @@
-from sqlalchemy import String, DateTime
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
-from uuid import uuid4, UUID
-from database.database import Base
+from pydantic import BaseModel, EmailStr
+from uuid import UUID
+from typing import Optional
 
 
-class User(Base):
-    __tablename__ = "users"
+class SignupCompleteRequest(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr | None = None
 
-    tenant_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=True, index=True)
-    phone_number: Mapped[str] = mapped_column(String(20), unique=True, nullable=True, index=True)
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+class UserResponse(BaseModel):
+    user_id: UUID
+    phone: str
+    is_verified: bool
+    is_active: bool
+class FirebaseVerifyResponse(BaseModel):
+    status: str  # LOGIN | SIGNUP_REQUIRED
+    user: UserResponse | None = None
+    phone: str | None = None
+    class Config:
+        from_attributes = True
+
+class UpdateUserRequest(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[EmailStr] = None

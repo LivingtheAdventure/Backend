@@ -1,26 +1,33 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-from uuid import UUID
-from datetime import datetime
+import uuid
+from database.database import Base
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy.sql import func
+from sqlalchemy.dialects.postgresql import UUID
 
-class CreateUserWithEmail(BaseModel):
-    email: EmailStr
-    password: str
+class User(Base):
+    __tablename__= "users"
 
-class CreateUserWithPhone(BaseModel):
-    phone_number: str
-    password: str
+    id = Column(Integer, autoincrement=True, primary_key=True, index=True)
+    user_id=Column(  UUID(as_uuid=True),
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False)
+    first_name=Column(String,nullable=True)
+    last_name=Column(String,nullable=True)
+    phone= Column(String, unique=True,nullable=False)
+    email= Column(String, unique=True,nullable=True)
+    is_active= Column(Boolean, default=True)
+    is_verified= Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class UserRead(BaseModel):
-    tenant_id: UUID
-    email: Optional[EmailStr] = None
-    phone_number: Optional[str] = None
-    user_name: Optional[str] = None
-    created_at: datetime
 
-    class Config:
-        from_attributes = True  # pydantic v2: allow ORM -> schema
+class OTPLog(Base):
+    __tablename__ = "otp_logs"
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+    id = Column(Integer, primary_key=True)
+    phone = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class Config:
+    from_attributes = True

@@ -1,11 +1,11 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Any
+from typing import Optional, Any, Dict
 from uuid import UUID
 from datetime import datetime
 
 class EventScheduleBase(BaseModel):
     event_id: UUID
-    schedule_data: Any
+    schedule_data: Dict[str, Any]
     status: Optional[str] = None
 
 class EventScheduleCreate(EventScheduleBase):
