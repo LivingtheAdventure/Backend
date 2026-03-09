@@ -23,4 +23,14 @@ class FirebaseVerifyResponse(BaseModel):
 class UpdateUserRequest(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    email: Optional[EmailStr] = None
+
+class RequestEmailOTPRequest(BaseModel):
+    email: EmailStr
+
+class VerifyEmailOTPRequest(BaseModel):
+    email: EmailStr
+    otp: str
+
+class UpdateEmailRequest(BaseModel):
+    email: EmailStr
+    otp: str
