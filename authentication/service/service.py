@@ -1,6 +1,8 @@
 from fastapi import Header, HTTPException
 import os
 import smtplib
+import base64
+import json
 from email.mime.text import MIMEText
 from sqlalchemy.orm import Session
 from database.database import get_db
@@ -16,10 +18,25 @@ security = HTTPBearer()
 
 service_account_path = "../../living-the-adventure-firebase-adminsdk-fbsvc-1eb54110fb.json"
 
-if not firebase_admin._apps:
-    cred = credentials.Certificate(service_account_path)
-    firebase_admin.initialize_app(cred)
+# if not firebase_admin._apps:
+#     cred = credentials.Certificate(service_account_path)
+#     firebase_admin.initialize_app(cred)
 
+if not firebase_admin._apps:
+    firebase_base64 = os.getenv("FIREBASE_CREDENTIALS_BASE64")
+
+    if not firebase_base64:
+        raise ValueError("FIREBASE_CREDENTIALS_BASE64 not set")
+
+    # Decode Base64 → JSON string
+    decoded_json = base64.b64decode(firebase_base64).decode("utf-8")
+
+    # Convert string → dict
+    firebase_config = json.loads(decoded_json)
+
+    cred = credentials.Certificate(firebase_config)
+
+    firebase_admin.initialize_app(cred)
 
 def firebase_auth_dep(
     credentials: HTTPAuthorizationCredentials = Depends(security),
