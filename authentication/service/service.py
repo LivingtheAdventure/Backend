@@ -9,7 +9,8 @@ from authentication.model.model import User
 from fastapi import Depends
 import firebase_admin
 from firebase_admin import auth, credentials
-
+from dotenv import load_dotenv
+load_dotenv()
 
 security = HTTPBearer()
 
