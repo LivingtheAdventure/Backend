@@ -16,7 +16,7 @@ load_dotenv()
 
 security = HTTPBearer()
 
-service_account_path = "../../living-the-adventure-firebase-adminsdk-fbsvc-1eb54110fb.json"
+# service_account_path = "../../living-the-adventure-firebase-adminsdk-fbsvc-1eb54110fb.json"
 
 # if not firebase_admin._apps:
 #     cred = credentials.Certificate(service_account_path)
