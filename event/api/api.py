@@ -14,6 +14,7 @@ from event.service.service import (
     delete_event
 )
 from event.schema.schema import EventOut, EventCreate, EventUpdate
+from admin.service.service import get_current_admin
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -36,12 +37,12 @@ def read_event_by_uuid(event_uuid: UUID, db: Session = Depends(get_db)):
     return db_event
 
 @router.post("/", response_model=EventOut, status_code=status.HTTP_201_CREATED)
-def create_new_event(payload: EventCreate, db: Session = Depends(get_db)):
+def create_new_event(payload: EventCreate, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     created = create_event(db, payload)
     return created
 
 @router.put("/{event_id}", response_model=EventOut)
-def update_existing_event(event_id: int, payload: EventUpdate, db: Session = Depends(get_db)):
+def update_existing_event(event_id: int, payload: EventUpdate, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     db_event = get_event_by_id(db, event_id)
     if not db_event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
@@ -49,7 +50,7 @@ def update_existing_event(event_id: int, payload: EventUpdate, db: Session = Dep
     return updated
 
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_event(event_id: int, db: Session = Depends(get_db)):
+def remove_event(event_id: int, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     db_event = get_event_by_id(db, event_id)
     if not db_event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")

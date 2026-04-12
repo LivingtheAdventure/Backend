@@ -8,6 +8,7 @@ from special.api.api import router as special_router
 from favourite.api.api import router as favourite_router
 from database.database import Base, engine
 from favourite.model.model import Favourite  # noqa: F401
+from admin.api.api import router as admin_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,11 +29,13 @@ app.add_middleware(
 
 # Routers
 app.include_router(auth_router)
+app.include_router(admin_router)
 app.include_router(hero_router)
 app.include_router(event_router)
 app.include_router(event_schedule_router)
 app.include_router(special_router)
 app.include_router(favourite_router)
+
 
 
 @app.get("/")

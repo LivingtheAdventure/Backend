@@ -50,10 +50,7 @@ class EventBase(BaseModel):
 
 
 class EventCreate(EventBase):
-    event_id: Optional[UUID] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-
+    pass
 
 class EventUpdate(BaseModel):
     title: Optional[str] = None
