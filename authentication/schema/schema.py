@@ -3,10 +3,10 @@ from uuid import UUID
 from typing import Optional
 
 
+
 class SignupCompleteRequest(BaseModel):
     first_name: str
     last_name: str
-    email: EmailStr | None = None
 
 class UserResponse(BaseModel):
     user_id: UUID
@@ -23,6 +23,7 @@ class FirebaseVerifyResponse(BaseModel):
 class UpdateUserRequest(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    email : Optional[EmailStr] = None
 
 class RequestEmailOTPRequest(BaseModel):
     email: EmailStr
