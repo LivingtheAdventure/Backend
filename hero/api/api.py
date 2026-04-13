@@ -10,6 +10,7 @@ from hero.service.service import (
     create_hero, update_hero, delete_hero, get_heroes_by_type
 )
 from hero.schema.schema import HeroOut, HeroCreate, HeroUpdate
+from admin.service.service import get_current_admin
 
 router = APIRouter(prefix="/heroes", tags=["heroes"])
 
@@ -40,12 +41,12 @@ def read_heroes_by_type(hero_type: str, db: Session = Depends(get_db)):
     return heroes
 
 @router.post("/", response_model=HeroOut, status_code=status.HTTP_200_OK)
-def create_new_hero(payload: HeroCreate, db: Session = Depends(get_db)):
+def create_new_hero(payload: HeroCreate, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     created = create_hero(db, payload)
     return created
 
 @router.put("/{hero_id}", response_model=HeroOut)
-def update_existing_hero(hero_id: int, payload: HeroUpdate, db: Session = Depends(get_db)):
+def update_existing_hero(hero_id: int, payload: HeroUpdate, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     db_hero = get_hero_by_id(db, hero_id)
     if not db_hero:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hero not found")
@@ -53,7 +54,7 @@ def update_existing_hero(hero_id: int, payload: HeroUpdate, db: Session = Depend
     return updated
 
 @router.delete("/{hero_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_hero(hero_id: int, db: Session = Depends(get_db)):
+def remove_hero(hero_id: int, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     db_hero = get_hero_by_id(db, hero_id)
     if not db_hero:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hero not found")

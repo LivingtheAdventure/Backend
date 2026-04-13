@@ -14,6 +14,7 @@ from schedule.service.service import (
     get_event_schedules_by_event_id
 )
 from schedule.schema.schema import EventScheduleOut, EventScheduleCreate, EventScheduleUpdate
+from admin.service.service import get_current_admin
 
 router = APIRouter(prefix="/event-schedules", tags=["Event Schedules"])
 
@@ -36,18 +37,18 @@ def read_event_schedule_by_uuid(schedule_uuid: UUID, db: Session = Depends(get_d
     return db_schedule
 
 @router.post("/", response_model=EventScheduleOut, status_code=status.HTTP_201_CREATED)
-def create_new_event_schedule(payload: EventScheduleCreate, db: Session = Depends(get_db)):
+def create_new_event_schedule(payload: EventScheduleCreate, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     return create_event_schedule(db, payload)
 
 @router.put("/{schedule_id}", response_model=EventScheduleOut)
-def update_existing_event_schedule(schedule_id: int, payload: EventScheduleUpdate, db: Session = Depends(get_db)):
+def update_existing_event_schedule(schedule_id: int, payload: EventScheduleUpdate, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     db_schedule = get_event_schedule_by_id(db, schedule_id)
     if not db_schedule:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Schedule not found")
     return update_event_schedule(db, db_schedule, payload)
 
 @router.delete("/{schedule_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_event_schedule(schedule_id: int, db: Session = Depends(get_db)):
+def remove_event_schedule(schedule_id: int, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     db_schedule = get_event_schedule_by_id(db, schedule_id)
     if not db_schedule:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Schedule not found")

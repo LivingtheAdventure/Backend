@@ -6,6 +6,7 @@ from special.schema.schema import (
 )
 from special.service import service
 from database.database import get_db  # make sure this is defined properly
+from admin.service.service import get_current_admin
 
 router = APIRouter(prefix="/special", tags=["Special Events"])
 
@@ -22,12 +23,12 @@ def read_best_of_the_year_by_uuid(uuid: str, db: Session = Depends(get_db)):
     return data
 
 @router.post("/best-of-the-year", response_model=BestOFTheYearOut)
-def create_best_of_the_year(payload: CreateBestOFTheYear, db: Session = Depends(get_db)):
+def create_best_of_the_year(payload: CreateBestOFTheYear, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     return service.create_best_of_the_year(db, event_id=payload.event, status=payload.status)
 
 
 @router.delete("/best-of-the-year/{id}", response_model=BestOFTheYearOut)
-def delete_best_of_the_year(id: int, db: Session = Depends(get_db)):
+def delete_best_of_the_year(id: int, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     deleted = service.delete_best_of_the_year(db, id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Record not found")
@@ -48,12 +49,12 @@ def read_upcoming_event_by_uuid(uuid: str, db: Session = Depends(get_db)):
     return data
 
 @router.post("/upcoming-events", response_model=UpcommingEventsOut)
-def create_upcomming_event(payload: CreateUpcommingEvent, db: Session = Depends(get_db)):
+def create_upcomming_event(payload: CreateUpcommingEvent, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     return service.create_upcomming_event(db, event_id=payload.event, status=payload.status)
 
 
 @router.delete("/upcoming-events/{id}", response_model=UpcommingEventsOut)
-def delete_upcomming_event(id: int, db: Session = Depends(get_db)):
+def delete_upcomming_event(id: int, db: Session = Depends(get_db), admin_id: str = Depends(get_current_admin)):
     deleted = service.delete_upcomming_event(db, id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Record not found")
