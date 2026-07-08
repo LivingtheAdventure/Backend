@@ -9,6 +9,7 @@ from favourite.api.api import router as favourite_router
 from database.database import Base, engine
 from favourite.model.model import Favourite  # noqa: F401
 from admin.api.api import router as admin_router
+from upload.api import router as upload_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -37,6 +38,7 @@ app.include_router(event_router)
 app.include_router(event_schedule_router)
 app.include_router(special_router)
 app.include_router(favourite_router)
+app.include_router(upload_router)
 
 
 
