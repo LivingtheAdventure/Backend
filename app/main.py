@@ -25,8 +25,9 @@ app.add_middleware(
         "https://frontend-2-0-ebon.vercel.app",
         "https://livingtheadventure.in",
         "https://www.livingtheadventure.in",
-        "https://admin-portal-livingtheadventure.vercel.app"
+        "https://admin-portal-livingtheadventure.vercel.app",
     ],
+    allow_origin_regex=r"https://([a-z0-9-]+\.)*vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
