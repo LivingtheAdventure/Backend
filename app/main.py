@@ -24,7 +24,8 @@ app.add_middleware(
         "http://localhost:5173",
         "https://frontend-2-0-ebon.vercel.app",
         "https://livingtheadventure.in",
-        "https://www.livingtheadventure.in"
+        "https://www.livingtheadventure.in",
+        "https://admin-portal-livingtheadventure.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
