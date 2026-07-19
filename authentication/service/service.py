@@ -12,6 +12,8 @@ from fastapi import Depends
 import firebase_admin
 from firebase_admin import auth, credentials
 from dotenv import load_dotenv
+from sqlalchemy import or_
+
 load_dotenv()
 
 security = HTTPBearer()
@@ -93,3 +95,48 @@ def _send_otp_email(to_email: str, otp: str):
         server.starttls()
         server.login(smtp_user, smtp_pass)
         server.sendmail(from_email, to_email, msg.as_string())
+
+
+def get_admin_users(
+    db: Session,
+    page: int = 1,
+    limit: int = 20,
+    search: str | None = None,
+    active: bool | None = None,
+    verified: bool | None = None,
+):
+
+    query = db.query(User)
+
+    if search:
+
+        query = query.filter(
+            or_(
+                User.first_name.ilike(f"%{search}%"),
+                User.last_name.ilike(f"%{search}%"),
+                User.phone.ilike(f"%{search}%"),
+                User.email.ilike(f"%{search}%"),
+            )
+        )
+
+    if active is not None:
+        query = query.filter(User.is_active == active)
+
+    if verified is not None:
+        query = query.filter(User.is_verified == verified)
+
+    total = query.count()
+
+    users = (
+        query.order_by(User.created_at.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .all()
+    )
+
+    return {
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "users": users,
+    }

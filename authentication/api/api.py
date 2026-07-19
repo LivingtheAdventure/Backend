@@ -13,6 +13,10 @@ from authentication.schema.schema import (
 )
 from authentication.service.service import firebase_auth_dep, _send_otp_email
 from authentication.service.otp_store import otp_store   # ← new module (see otp_store.py)
+from authentication.schema.schema import AdminUsersResponse
+from authentication.service.service import get_admin_users
+from admin.service.service import get_current_admin
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -92,3 +96,26 @@ def update_me(
     db.commit()
     db.refresh(user)
     return user
+
+@router.get(
+    "/users",
+    response_model=AdminUsersResponse,
+)
+def read_users(
+    page: int = 1,
+    limit: int = 20,
+    search: str | None = None,
+    active: bool | None = None,
+    verified: bool | None = None,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(get_current_admin),
+):
+
+    return get_admin_users(
+        db=db,
+        page=page,
+        limit=limit,
+        search=search,
+        active=active,
+        verified=verified,
+    )

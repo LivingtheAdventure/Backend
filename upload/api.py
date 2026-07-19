@@ -4,7 +4,7 @@ from fastapi import APIRouter, UploadFile, File, Form,Query, HTTPException
 
 from upload.storage import supabase
 
-router = APIRouter()
+router = APIRouter(tags=["Data Upload"])
 
 BUCKET = "LivingDev"
 ALLOWED_FOLDERS = {"cover", "poster", "gallery_image", "promo_video"}

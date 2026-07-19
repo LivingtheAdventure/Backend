@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
-from typing import Optional
+from datetime import datetime
+from typing import Optional,List
 
 
 
@@ -35,3 +36,23 @@ class VerifyEmailOTPRequest(BaseModel):
 class UpdateEmailRequest(BaseModel):
     email: EmailStr
     otp: str
+
+class AdminUserOut(BaseModel):
+    user_id: UUID
+    first_name: Optional[str]
+    last_name: Optional[str]
+    phone: str
+    email: Optional[EmailStr]
+    is_active: bool
+    is_verified: bool
+    created_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True
+
+
+class AdminUsersResponse(BaseModel):
+    total: int
+    page: int
+    limit: int
+    users: List[AdminUserOut]
