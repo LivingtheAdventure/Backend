@@ -46,6 +46,7 @@ postgrest==2.31.0
 propcache==0.4.1
 proto-plus==1.27.0
 protobuf==6.33.4
+psycopg2==2.9.11
 psycopg2-binary==2.9.11
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
@@ -56,6 +57,7 @@ PyJWT==2.13.0
 python-dotenv==1.1.1
 python-jose==3.5.0
 python-multipart==0.0.20
+razorpay==2.0.1
 realtime==2.31.0
 requests==2.32.5
 rsa==4.9.1
