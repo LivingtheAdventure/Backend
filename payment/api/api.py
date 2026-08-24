@@ -1,22 +1,23 @@
-from fastapi import APIRouter, Depends
-
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from database.database import get_db
-
 from authentication.service.service import firebase_auth_dep
+from admin.service.service import get_current_admin
 
 from payment.schema.schema import (
     CreateOrderRequest,
     CreateOrderResponse,
     VerifyPaymentRequest,
     PaymentDetailsResponse,
+    AdminBookingListResponse,
 )
 
 from payment.service.service import (
     create_payment_order,
     verify_payment,
     get_payment_details,
+    get_all_bookings,
 )
 
 from logs.service.service import create_user_action_log
@@ -25,6 +26,11 @@ router = APIRouter(
     prefix="/payments",
     tags=["payments"],
 )
+
+
+# ============================================================
+# CREATE PAYMENT ORDER
+# ============================================================
 
 
 @router.post(
@@ -43,8 +49,6 @@ def create_order(
             db=db,
         )
 
-        # Get user from decoded Firebase information if available.
-        # Adjust this depending on how your payment service identifies the user.
         phone = decoded.get("phone_number")
 
         if phone:
@@ -83,6 +87,11 @@ def create_order(
                 )
 
         raise
+
+
+# ============================================================
+# VERIFY PAYMENT
+# ============================================================
 
 
 @router.post(
@@ -138,6 +147,43 @@ def verify(
                 )
 
         raise
+
+
+# ============================================================
+# ADMIN - GET ALL BOOKINGS
+# ============================================================
+
+
+@router.get(
+    "/get-all-bookings",
+    response_model=AdminBookingListResponse,
+)
+def list_all_bookings(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    booking_status: str | None = Query(
+        None,
+        description="Filter by booking status",
+    ),
+    payment_status: str | None = Query(
+        None,
+        description="Filter by payment status",
+    ),
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(get_current_admin),
+):
+    return get_all_bookings(
+        db=db,
+        page=page,
+        limit=limit,
+        booking_status=booking_status,
+        payment_status=payment_status,
+    )
+
+
+# ============================================================
+# USER - GET PAYMENT DETAILS
+# ============================================================
 
 
 @router.get(

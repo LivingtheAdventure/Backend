@@ -1,4 +1,7 @@
-from pydantic import BaseModel, UUID4, Field
+from pydantic import BaseModel, UUID4, Field, ConfigDict
+from datetime import datetime
+from typing import Optional
+from uuid import UUID
 
 
 class CreateOrderRequest(BaseModel):
@@ -32,3 +35,45 @@ class PaymentDetailsResponse(BaseModel):
     booking_status: str
     amount: float
     number_of_people: int
+
+
+class AdminBookingOut(BaseModel):
+    booking_id: UUID
+
+    user_id: UUID
+    event_id: UUID
+    schedule_id: UUID
+
+    pickup_uuid: str
+
+    number_of_people: int
+
+    price_per_person: float
+    subtotal: float
+
+    discount_label: Optional[str] = None
+    discount_type: Optional[str] = None
+    discount_scope: Optional[str] = None
+    discount_value: Optional[float] = None
+    discount_amount: Optional[float] = None
+
+    final_amount: float
+    currency: str
+
+    booking_status: str
+
+    payment_status: Optional[str] = None
+    razorpay_order_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminBookingListResponse(BaseModel):
+    total: int
+    page: int
+    limit: int
+    bookings: list[AdminBookingOut]

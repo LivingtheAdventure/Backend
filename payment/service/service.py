@@ -441,3 +441,69 @@ def get_payment_details(
         "amount": booking.final_amount,
         "number_of_people": booking.number_of_people,
     }
+
+
+def get_all_bookings(
+    db: Session,
+    page: int = 1,
+    limit: int = 20,
+    booking_status: str | None = None,
+    payment_status: str | None = None,
+):
+    query = db.query(
+        Booking,
+        Payment.payment_status,
+        Payment.razorpay_order_id,
+        Payment.razorpay_payment_id,
+    ).outerjoin(
+        Payment,
+        Payment.booking_id == Booking.booking_id,
+    )
+
+    if booking_status:
+        query = query.filter(Booking.booking_status == booking_status)
+
+    if payment_status:
+        query = query.filter(Payment.payment_status == payment_status)
+
+    total = query.count()
+
+    offset = (page - 1) * limit
+
+    rows = query.order_by(Booking.created_at.desc()).offset(offset).limit(limit).all()
+
+    bookings = []
+
+    for booking, payment_status_value, razorpay_order_id, razorpay_payment_id in rows:
+        bookings.append(
+            {
+                "booking_id": booking.booking_id,
+                "user_id": booking.user_id,
+                "event_id": booking.event_id,
+                "schedule_id": booking.schedule_id,
+                "pickup_uuid": booking.pickup_uuid,
+                "number_of_people": booking.number_of_people,
+                "price_per_person": booking.price_per_person,
+                "subtotal": booking.subtotal,
+                "discount_label": booking.discount_label,
+                "discount_type": booking.discount_type,
+                "discount_scope": booking.discount_scope,
+                "discount_value": booking.discount_value,
+                "discount_amount": booking.discount_amount,
+                "final_amount": booking.final_amount,
+                "currency": booking.currency,
+                "booking_status": booking.booking_status,
+                "payment_status": payment_status_value,
+                "razorpay_order_id": razorpay_order_id,
+                "razorpay_payment_id": razorpay_payment_id,
+                "created_at": booking.created_at,
+                "updated_at": booking.updated_at,
+            }
+        )
+
+    return {
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "bookings": bookings,
+    }
