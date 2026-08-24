@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+
 from sqlalchemy.orm import Session
 
 from database.database import get_db
@@ -18,6 +19,8 @@ from payment.service.service import (
     get_payment_details,
 )
 
+from logs.service.service import create_user_action_log
+
 router = APIRouter(
     prefix="/payments",
     tags=["payments"],
@@ -33,11 +36,53 @@ def create_order(
     decoded=Depends(firebase_auth_dep),
     db: Session = Depends(get_db),
 ):
-    return create_payment_order(
-        payload=payload,
-        decoded=decoded,
-        db=db,
-    )
+    try:
+        result = create_payment_order(
+            payload=payload,
+            decoded=decoded,
+            db=db,
+        )
+
+        # Get user from decoded Firebase information if available.
+        # Adjust this depending on how your payment service identifies the user.
+        phone = decoded.get("phone_number")
+
+        if phone:
+            from authentication.model.model import User
+
+            user = db.query(User).filter(User.phone == phone).first()
+
+            if user:
+                create_user_action_log(
+                    db=db,
+                    user_id=user.user_id,
+                    action="PAYMENT_ORDER_CREATED",
+                    entity="PAYMENT",
+                    description="Payment order was created successfully",
+                )
+
+        return result
+
+    except Exception:
+        db.rollback()
+
+        phone = decoded.get("phone_number")
+
+        if phone:
+            from authentication.model.model import User
+
+            user = db.query(User).filter(User.phone == phone).first()
+
+            if user:
+                create_user_action_log(
+                    db=db,
+                    user_id=user.user_id,
+                    action="PAYMENT_ORDER_CREATED",
+                    entity="PAYMENT",
+                    description="Failed to create payment order",
+                )
+
+        raise
 
 
 @router.post(
@@ -48,11 +93,51 @@ def verify(
     decoded=Depends(firebase_auth_dep),
     db: Session = Depends(get_db),
 ):
-    return verify_payment(
-        payload=payload,
-        decoded=decoded,
-        db=db,
-    )
+    try:
+        result = verify_payment(
+            payload=payload,
+            decoded=decoded,
+            db=db,
+        )
+
+        phone = decoded.get("phone_number")
+
+        if phone:
+            from authentication.model.model import User
+
+            user = db.query(User).filter(User.phone == phone).first()
+
+            if user:
+                create_user_action_log(
+                    db=db,
+                    user_id=user.user_id,
+                    action="PAYMENT_VERIFIED",
+                    entity="PAYMENT",
+                    description="Payment was verified successfully",
+                )
+
+        return result
+
+    except Exception:
+        db.rollback()
+
+        phone = decoded.get("phone_number")
+
+        if phone:
+            from authentication.model.model import User
+
+            user = db.query(User).filter(User.phone == phone).first()
+
+            if user:
+                create_user_action_log(
+                    db=db,
+                    user_id=user.user_id,
+                    action="PAYMENT_VERIFIED",
+                    entity="PAYMENT",
+                    description="Payment verification failed",
+                )
+
+        raise
 
 
 @router.get(

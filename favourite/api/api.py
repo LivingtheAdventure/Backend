@@ -5,6 +5,7 @@ from authentication.service.service import firebase_auth_dep
 from authentication.model.model import User
 from database.database import get_db
 from favourite.model.model import Favourite
+from logs.service.service import create_user_action_log
 
 router = APIRouter(prefix="/favourites", tags=["favourites"])
 
@@ -25,13 +26,9 @@ def list_my_favourites(
         if not user:
             return {"favourites": []}
 
-        rows = db.query(Favourite).filter(
-            Favourite.user_id == user.user_id
-        ).all()
+        rows = db.query(Favourite).filter(Favourite.user_id == user.user_id).all()
 
-        return {
-            "favourites": [row.event_id for row in rows]
-        }
+        return {"favourites": [row.event_id for row in rows]}
 
     except Exception:
         # If anything fails, never break UI
@@ -44,43 +41,81 @@ def toggle_favourite(
     decoded=Depends(firebase_auth_dep),
     db: Session = Depends(get_db),
 ):
-    try:
-        phone = decoded.get("phone_number")
+    phone = decoded.get("phone_number")
 
-        if not phone:
-            return {"event_id": event_id, "is_favourite": False}
+    if not phone:
+        return {"event_id": event_id, "is_favourite": False}
 
-        user = db.query(User).filter(User.phone == phone).first()
+    user = db.query(User).filter(User.phone == phone).first()
 
-        if not user:
-            return {"event_id": event_id, "is_favourite": False}
+    if not user:
+        return {"event_id": event_id, "is_favourite": False}
 
-        existing = db.query(Favourite).filter(
-            Favourite.user_id == user.user_id,
-            Favourite.event_id == event_id
-        ).first()
+    existing = (
+        db.query(Favourite)
+        .filter(Favourite.user_id == user.user_id, Favourite.event_id == event_id)
+        .first()
+    )
 
-        if existing:
+    # Remove from favourites
+    if existing:
+        try:
             db.delete(existing)
             db.commit()
 
-            return {
-                "event_id": event_id,
-                "is_favourite": False
-            }
+            create_user_action_log(
+                db=db,
+                user_id=user.user_id,
+                action="FAVOURITE_REMOVED",
+                entity="EVENT",
+                entity_id=str(event_id),
+                description="Event was removed from favourites successfully",
+            )
 
-        fav = Favourite(
-            user_id=user.user_id,
-            event_id=event_id
-        )
+            return {"event_id": event_id, "is_favourite": False}
+
+        except Exception:
+            db.rollback()
+
+            create_user_action_log(
+                db=db,
+                user_id=user.user_id,
+                action="FAVOURITE_REMOVE_FAILED",
+                entity="EVENT",
+                entity_id=str(event_id),
+                description="Failed to remove event from favourites",
+            )
+
+            return {"event_id": event_id, "is_favourite": True}
+
+    # Add to favourites
+    try:
+        fav = Favourite(user_id=user.user_id, event_id=event_id)
 
         db.add(fav)
         db.commit()
 
-        return {
-            "event_id": event_id,
-            "is_favourite": True
-        }
+        create_user_action_log(
+            db=db,
+            user_id=user.user_id,
+            action="FAVOURITE_ADDED",
+            entity="EVENT",
+            entity_id=str(event_id),
+            description="Event was added to favourites successfully",
+        )
+
+        return {"event_id": event_id, "is_favourite": True}
 
     except Exception:
+        db.rollback()
+
+        create_user_action_log(
+            db=db,
+            user_id=user.user_id,
+            action="FAVOURITE_ADD_FAILED",
+            entity="EVENT",
+            entity_id=str(event_id),
+            description="Failed to add event to favourites",
+        )
+
         return {"event_id": event_id, "is_favourite": False}

@@ -3,6 +3,7 @@ from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel, AnyUrl
 
+
 class HeroBase(BaseModel):
     title: Optional[str] = None
     rank: Optional[int] = None
@@ -15,9 +16,11 @@ class HeroBase(BaseModel):
     hero_type: Optional[str] = None  # ✅ Added
     active: Optional[Union[str, bool]] = None
 
+
 class HeroCreate(HeroBase):
     hero_id: Optional[UUID] = None
     event_id: UUID
+
 
 class HeroUpdate(BaseModel):
     title: Optional[str] = None
@@ -30,6 +33,7 @@ class HeroUpdate(BaseModel):
     status: Optional[str] = None
     hero_type: Optional[str] = None  # ✅ Added
     active: Optional[Union[str, bool]] = None
+
 
 class HeroOut(HeroBase):
     id: int
